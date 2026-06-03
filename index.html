@@ -4,227 +4,162 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بركر ويست - طابعة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-/* SCREEN STYLES */
-body{font-family:'Courier New',monospace;background:#0a0a0f;color:#e8e8f0;margin:0;padding:0;}
-.screen{max-width:500px;margin:0 auto;padding:16px;}
-.header{background:#13131a;border:1px solid #25253a;border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;}
-.header h1{font-size:18px;color:#f59e0b;margin-bottom:4px;}
-.header p{font-size:12px;color:#6b6b8a;}
-.section-select{background:#1a1a24;border:1px solid #25253a;border-radius:10px;padding:12px;margin-bottom:14px;}
-.section-select label{display:block;font-size:12px;color:#6b6b8a;margin-bottom:6px;}
-.section-select select{width:100%;padding:10px;background:#0a0a0f;border:1px solid #25253a;border-radius:8px;color:#e8e8f0;font-size:14px;font-family:inherit;}
-.status-card{background:#1a1a24;border:1px solid #25253a;border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
-.status-dot{width:12px;height:12px;border-radius:50%;background:#10b981;animation:blink 1.5s infinite;}
+body{font-family:'Tajawal',sans-serif;background:#0a0a0f;color:#e8e8f0;margin:0;padding:20px;}
+.card{background:#13131a;border:1px solid #25253a;border-radius:14px;padding:16px;margin-bottom:12px;}
+h1{color:#f59e0b;font-size:20px;margin-bottom:4px;}
+p{color:#6b6b8a;font-size:13px;margin:0;}
+select,input{width:100%;padding:10px;background:#1a1a24;border:1px solid #25253a;border-radius:8px;color:#e8e8f0;font-family:inherit;font-size:14px;margin-top:6px;}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;font-size:15px;font-weight:900;cursor:pointer;margin-top:10px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;padding:10px;background:#1a1a24;border-radius:8px;margin-top:8px;}
+.dot{width:10px;height:10px;border-radius:50%;background:#ef4444;}
+.dot.on{background:#10b981;animation:blink 1.5s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
-.status-text{font-size:13px;font-weight:700;}
-.log{background:#13131a;border:1px solid #25253a;border-radius:10px;padding:12px;height:200px;overflow-y:auto;font-size:11px;color:#6b6b8a;line-height:1.8;}
-.log-item{padding:3px 0;border-bottom:1px solid rgba(37,37,58,.5);}
-.log-item.success{color:#10b981;}
-.log-item.new{color:#f59e0b;}
-.start-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;}
-.start-btn:disabled{opacity:.5;}
+.log{height:180px;overflow-y:auto;background:#0a0a0f;border-radius:8px;padding:10px;font-size:12px;margin-top:10px;}
+.log div{padding:3px 0;border-bottom:1px solid #1a1a24;line-height:1.6;}
+.green{color:#10b981;} .yellow{color:#f59e0b;} .red{color:#ef4444;}
 
-/* PRINT STYLES - الطباعة */
 @media print {
-  body{background:white;color:black;}
-  .screen{display:none;}
-  .print-ticket{display:block!important;}
+  body > *{display:none;}
+  #ticket{display:block!important;}
 }
-.print-ticket{display:none;width:72mm;font-family:'Courier New',monospace;font-size:12px;color:black;}
-.pt-header{text-align:center;border-bottom:2px dashed #000;padding-bottom:8px;margin-bottom:8px;}
-.pt-title{font-size:18px;font-weight:900;}
-.pt-section{font-size:14px;font-weight:700;background:#000;color:#fff;padding:3px 6px;margin:4px 0;}
-.pt-row{display:flex;justify-content:space-between;padding:2px 0;font-size:13px;}
-.pt-row-name{flex:1;}
-.pt-row-qty{font-weight:700;min-width:30px;text-align:left;}
-.pt-divider{border-top:1px dashed #000;margin:6px 0;}
-.pt-footer{text-align:center;font-size:11px;margin-top:8px;}
-.pt-order-info{font-size:11px;margin-bottom:6px;}
+#ticket{display:none;}
+.ticket{width:76mm;font-family:'Courier New',monospace;font-size:13px;color:#000;background:#fff;padding:4mm;}
+.tc{text-align:center;}
+.tb{font-weight:900;}
+.tl{display:flex;justify-content:space-between;padding:2px 0;}
+.tdash{border-top:1px dashed #000;margin:4px 0;}
 </style>
 </head>
 <body>
 
-<!-- SCREEN UI -->
-<div class="screen">
-  <div class="header">
-    <h1>🖨️ بركر ويست - طابعة</h1>
-    <p>نظام الطباعة التلقائي</p>
-  </div>
-
-  <div class="section-select">
-    <label>اختر القسم:</label>
-    <select id="sectionSelect" onchange="changeSection()">
-      <option value="">-- اختر القسم --</option>
-      <option value="برگر">🍔 قسم البرگر</option>
-      <option value="بيتزا">🍕 قسم البيتزا</option>
-      <option value="شاورما">🌯 قسم الشاورما</option>
-      <option value="كنتاكي">🍗 قسم الكنتاكي</option>
-      <option value="دايت">🥗 قسم الدايت</option>
-    </select>
-  </div>
-
-  <div class="status-card" id="statusCard" style="display:none;">
-    <div class="status-dot"></div>
-    <div class="status-text" id="statusText">جاري المراقبة...</div>
-  </div>
-
-  <button class="start-btn" id="startBtn" onclick="startMonitoring()" disabled>
-    🖨️ ابدأ المراقبة والطباعة
-  </button>
-
-  <div style="margin-top:14px;">
-    <div style="font-size:12px;color:#6b6b8a;margin-bottom:6px;">📋 سجل الطباعة</div>
-    <div class="log" id="printLog">في انتظار البدء...</div>
-  </div>
+<div class="card">
+  <h1>🖨️ بركر ويست - طابعة</h1>
+  <p>نظام الطباعة التلقائي للمطبخ</p>
 </div>
 
-<!-- PRINT TICKET -->
-<div class="print-ticket" id="printTicket"></div>
+<div class="card">
+  <label style="font-size:12px;color:#6b6b8a;">القسم:</label>
+  <select id="sec">
+    <option value="">-- اختر القسم --</option>
+    <option value="برگر">🍔 برگر</option>
+    <option value="بيتزا">🍕 بيتزا</option>
+    <option value="شاورما">🌯 شاورما</option>
+    <option value="كنتاكي">🍗 كنتاكي</option>
+    <option value="دايت">🥗 دايت</option>
+  </select>
+  <div class="status"><div class="dot" id="dot"></div><span id="statusTxt">غير متصل</span></div>
+  <button class="btn" id="startBtn" onclick="start()" disabled>▶ ابدأ المراقبة</button>
+</div>
+
+<div class="card">
+  <div style="font-size:12px;color:#6b6b8a;margin-bottom:4px;">📋 سجل الطباعة</div>
+  <div class="log" id="log"><div style="color:#6b6b8a">في انتظار الاتصال...</div></div>
+</div>
+
+<div id="ticket"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const app = initializeApp({
+const cfg = {
   apiKey:"AIzaSyAIkpN0_cSJzSOq-oWDjBbTPJUxe7MHDTk",
   authDomain:"restaurant-pos-891d8.firebaseapp.com",
   projectId:"restaurant-pos-891d8",
   storageBucket:"restaurant-pos-891d8.firebasestorage.app",
   messagingSenderId:"582886444374",
   appId:"1:582886444374:web:70251a1d78e6258a759af7"
-});
-const db = getFirestore(app);
-const auth = getAuth(app);
-window._db = db;
-window._auth = auth;
-window._fns = { collection, query, where, onSnapshot, doc, updateDoc };
-
-// Auto login with printer account
-signInWithEmailAndPassword(auth, "Ali.deaa@west.com", "BurgerWest@2026")
-  .then(() => { console.log("✅ Printer logged in"); window.dispatchEvent(new Event('printerReady')); })
-  .catch(e => { console.error("Login error:", e); window.dispatchEvent(new Event('printerReady')); });
-</script>
-
-<script>
-'use strict';
-let currentSection = '';
-let unsubscribe = null;
-let printedOrders = new Set();
-
-function changeSection() {
-  currentSection = document.getElementById('sectionSelect').value;
-  document.getElementById('startBtn').disabled = !currentSection;
-}
-window.changeSection = changeSection;
-
-function addLog(msg, type='') {
-  const log = document.getElementById('printLog');
-  const div = document.createElement('div');
-  div.className = 'log-item ' + type;
-  div.textContent = new Date().toLocaleTimeString('ar') + ' — ' + msg;
-  log.insertBefore(div, log.firstChild);
-  if (log.children.length > 50) log.removeChild(log.lastChild);
-}
-
-window.addEventListener('printerReady', () => {
-  document.getElementById('startBtn').disabled = !currentSection;
-  addLog('✅ متصل بـ Firebase', 'success');
-});
-
-window.startMonitoring = function() {
-  if (!currentSection) return;
-  if (unsubscribe) unsubscribe();
-
-  document.getElementById('statusCard').style.display = 'flex';
-  document.getElementById('statusText').textContent = `مراقبة قسم: ${currentSection}`;
-  document.getElementById('startBtn').disabled = true;
-  document.getElementById('startBtn').textContent = '✅ جاري المراقبة...';
-  addLog('بدأت مراقبة قسم ' + currentSection, 'success');
-
-  // Load already printed orders from localStorage
-  const saved = localStorage.getItem('printed_' + currentSection);
-  if (saved) printedOrders = new Set(JSON.parse(saved));
-
-  // Load printed orders from localStorage
-  const saved = localStorage.getItem('printed_' + currentSection);
-  if (saved) { try { printedOrders = new Set(JSON.parse(saved)); } catch(e){} }
-
-  unsubscribe = window._fns.onSnapshot(
-    window._fns.collection(window._db, 'orders'),
-    snap => {
-      snap.docChanges().forEach(change => {
-        if (change.type !== 'added' && change.type !== 'modified') return;
-        const order = { id: change.doc.id, ...change.doc.data() };
-        const printKey = order.id + '_' + currentSection;
-
-        // Check if this order has items for our section
-        const sectionItems = (order.items || []).filter(i => i.kitchenSection === currentSection);
-        if (!sectionItems.length) return;
-
-        // Check if already printed
-        const printed = order.printed || {};
-        if (printed[currentSection]) return;
-        if (printedOrders.has(printKey)) return;
-
-        // Only print recent orders (last 10 minutes)
-        const age = Date.now() - (order.createdAtMs || 0);
-        if (age > 600000) return;
-
-        // Print!
-        printedOrders.add(printKey);
-        localStorage.setItem('printed_' + currentSection, JSON.stringify([...printedOrders]));
-        addLog('🖨️ طباعة #' + order.id.slice(0,6).toUpperCase() + ' (' + sectionItems.length + ' صنف)', 'new');
-        printOrder(order, sectionItems);
-
-        // Mark as printed in Firebase
-        window._fns.updateDoc(window._fns.doc(window._db, 'orders', order.id), {
-          ['printed.' + currentSection]: true
-        }).catch(()=>{});
-      });
-    }
-  );
 };
 
-function printOrder(order, items) {
-  const typeMap = {delivery:'🛵 دلفري', takeaway:'🥡 سفري', salon:'🪑 صالة'};
-  const time = new Date().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit'});
+const app = initializeApp(cfg);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  const ticket = document.getElementById('printTicket');
-  ticket.innerHTML = `
-    <div class="pt-header">
-      <div class="pt-title">🍔 بركر ويست</div>
-      <div style="font-size:13px;font-weight:700;">${currentSection}</div>
-    </div>
-    <div class="pt-order-info">
-      <div>رقم الطلب: <b>#${order.id.slice(0,6).toUpperCase()}</b></div>
-      <div>النوع: <b>${typeMap[order.orderType]||order.orderType}</b></div>
-      <div>الوقت: <b>${time}</b></div>
-      ${order.customer ? `<div>الزبون: <b>${order.customer}</b></div>` : ''}
-      ${order.tableNum ? `<div>الطاولة: <b>${order.tableNum}</b></div>` : ''}
-      ${order.notes ? `<div>ملاحظة: <b>${order.notes}</b></div>` : ''}
-    </div>
-    <div class="pt-divider"></div>
-    <div class="pt-section">الأصناف</div>
-    ${items.map(i => `
-      <div class="pt-row">
-        <span class="pt-row-name">${i.name}</span>
-        <span class="pt-row-qty">× ${i.qty}</span>
-      </div>`).join('')}
-    <div class="pt-divider"></div>
-    <div class="pt-footer">
-      الكاشير: ${order.cashierName || '—'}<br>
-      ━━━━━━━━━━━━━━━━
+function log(msg, cls='') {
+  const el = document.getElementById('log');
+  const d = document.createElement('div');
+  d.className = cls;
+  d.textContent = new Date().toLocaleTimeString('ar') + ' — ' + msg;
+  el.insertBefore(d, el.firstChild);
+}
+
+// Auto login
+log('جاري الاتصال بـ Firebase...');
+signInWithEmailAndPassword(auth, "Ali.deaa@west.com", "BurgerWest@2026")
+  .then(() => {
+    document.getElementById('dot').classList.add('on');
+    document.getElementById('statusTxt').textContent = 'متصل ✅';
+    document.getElementById('startBtn').disabled = false;
+    log('✅ تم الاتصال بنجاح', 'green');
+  })
+  .catch(e => {
+    document.getElementById('statusTxt').textContent = 'خطأ: ' + e.message;
+    log('❌ خطأ: ' + e.message, 'red');
+  });
+
+let unsub = null;
+let printed = new Set();
+
+window.start = function() {
+  const sec = document.getElementById('sec').value;
+  if (!sec) { alert('اختر القسم أولاً'); return; }
+
+  // Load printed from localStorage
+  try { printed = new Set(JSON.parse(localStorage.getItem('p_'+sec)||'[]')); } catch(e){}
+
+  if (unsub) unsub();
+  document.getElementById('startBtn').textContent = '✅ جاري المراقبة...';
+  document.getElementById('startBtn').disabled = true;
+  log('بدأت مراقبة قسم: ' + sec, 'yellow');
+
+  unsub = onSnapshot(collection(db, 'orders'), snap => {
+    snap.docChanges().forEach(ch => {
+      if (ch.type !== 'added') return;
+      const o = { id: ch.doc.id, ...ch.doc.data() };
+      const key = o.id + '_' + sec;
+      if (printed.has(key)) return;
+
+      // Filter items for this section
+      const items = (o.items||[]).filter(i => i.kitchenSection === sec);
+      if (!items.length) return;
+
+      // Only orders from last 5 min
+      if (Date.now() - (o.createdAtMs||0) > 300000) return;
+
+      printed.add(key);
+      localStorage.setItem('p_'+sec, JSON.stringify([...printed]));
+      log('🖨️ طباعة #' + o.id.slice(0,6).toUpperCase() + ' — ' + items.map(i=>i.name+'×'+i.qty).join(', '), 'green');
+      doPrint(o, items, sec);
+    });
+  }, err => {
+    log('❌ خطأ: ' + err.message, 'red');
+  });
+};
+
+function doPrint(o, items, sec) {
+  const t = new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
+  const types = {delivery:'دلفري 🛵', takeaway:'سفري 🥡', salon:'صالة 🪑'};
+  document.getElementById('ticket').innerHTML = `
+    <div class="ticket">
+      <div class="tc tb" style="font-size:16px;">بركر ويست</div>
+      <div class="tc" style="font-size:13px;">${sec}</div>
+      <div class="tdash"></div>
+      <div class="tl"><span>رقم:</span><span class="tb">#${o.id.slice(0,6).toUpperCase()}</span></div>
+      <div class="tl"><span>النوع:</span><span>${types[o.orderType]||o.orderType}</span></div>
+      <div class="tl"><span>الوقت:</span><span>${t}</span></div>
+      ${o.customer?`<div class="tl"><span>الزبون:</span><span>${o.customer}</span></div>`:''}
+      ${o.tableNum?`<div class="tl"><span>الطاولة:</span><span>${o.tableNum}</span></div>`:''}
+      <div class="tdash"></div>
+      ${items.map(i=>`<div class="tl"><span>${i.name}</span><span class="tb">× ${i.qty}</span></div>`).join('')}
+      <div class="tdash"></div>
+      <div class="tc" style="font-size:11px;">كاشير: ${o.cashierName||'—'}</div>
     </div>`;
-
-  // Auto print
-  setTimeout(() => {
-    window.print();
-    addLog('✅ طُبع بنجاح', 'success');
-  }, 300);
+  document.getElementById('ticket').style.display = 'block';
+  setTimeout(() => { window.print(); }, 200);
 }
 </script>
 </body>
