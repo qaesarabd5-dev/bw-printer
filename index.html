@@ -135,15 +135,17 @@ window.startMonitoring = function() {
   const saved = localStorage.getItem('printed_' + currentSection);
   if (saved) printedOrders = new Set(JSON.parse(saved));
 
+  // Load printed orders from localStorage
+  const saved = localStorage.getItem('printed_' + currentSection);
+  if (saved) { try { printedOrders = new Set(JSON.parse(saved)); } catch(e){} }
+
   unsubscribe = window._fns.onSnapshot(
-    window._fns.query(
-      window._fns.collection(window._db, 'orders'),
-      window._fns.where('status', 'in', ['pending', 'accepted'])
-    ),
+    window._fns.collection(window._db, 'orders'),
     snap => {
-      snap.docs.forEach(d => {
-        const order = { id: d.id, ...d.data() };
-        const printKey = `${order.id}_${currentSection}`;
+      snap.docChanges().forEach(change => {
+        if (change.type !== 'added' && change.type !== 'modified') return;
+        const order = { id: change.doc.id, ...change.doc.data() };
+        const printKey = order.id + '_' + currentSection;
 
         // Check if this order has items for our section
         const sectionItems = (order.items || []).filter(i => i.kitchenSection === currentSection);
@@ -154,15 +156,19 @@ window.startMonitoring = function() {
         if (printed[currentSection]) return;
         if (printedOrders.has(printKey)) return;
 
+        // Only print recent orders (last 10 minutes)
+        const age = Date.now() - (order.createdAtMs || 0);
+        if (age > 600000) return;
+
         // Print!
         printedOrders.add(printKey);
         localStorage.setItem('printed_' + currentSection, JSON.stringify([...printedOrders]));
-        addLog(`طباعة طلب #${order.id.slice(0,6).toUpperCase()} (${sectionItems.length} صنف)`, 'new');
+        addLog('🖨️ طباعة #' + order.id.slice(0,6).toUpperCase() + ' (' + sectionItems.length + ' صنف)', 'new');
         printOrder(order, sectionItems);
 
         // Mark as printed in Firebase
         window._fns.updateDoc(window._fns.doc(window._db, 'orders', order.id), {
-          [`printed.${currentSection}`]: true
+          ['printed.' + currentSection]: true
         }).catch(()=>{});
       });
     }
