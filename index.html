@@ -86,6 +86,8 @@ body{font-family:'Courier New',monospace;background:#0a0a0f;color:#e8e8f0;margin
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyAIkpN0_cSJzSOq-oWDjBbTPJUxe7MHDTk",
@@ -96,8 +98,15 @@ const app = initializeApp({
   appId:"1:582886444374:web:70251a1d78e6258a759af7"
 });
 const db = getFirestore(app);
+const auth = getAuth(app);
 window._db = db;
+window._auth = auth;
 window._fns = { collection, query, where, onSnapshot, doc, updateDoc };
+
+// Auto login with printer account
+signInWithEmailAndPassword(auth, "Ali.deaa@west.com", "BurgerWest@2026")
+  .then(() => { console.log("✅ Printer logged in"); window.dispatchEvent(new Event('printerReady')); })
+  .catch(e => { console.error("Login error:", e); window.dispatchEvent(new Event('printerReady')); });
 </script>
 
 <script>
@@ -120,6 +129,11 @@ function addLog(msg, type='') {
   log.insertBefore(div, log.firstChild);
   if (log.children.length > 50) log.removeChild(log.lastChild);
 }
+
+window.addEventListener('printerReady', () => {
+  document.getElementById('startBtn').disabled = !currentSection;
+  addLog('✅ متصل بـ Firebase', 'success');
+});
 
 window.startMonitoring = function() {
   if (!currentSection) return;
