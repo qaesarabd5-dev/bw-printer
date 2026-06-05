@@ -41,15 +41,8 @@ select,input{width:100%;padding:10px;background:#1a1a24;border:1px solid #25253a
 </div>
 
 <div class="card">
-  <label style="font-size:12px;color:#6b6b8a;">القسم:</label>
-  <select id="sec">
-    <option value="">-- اختر القسم --</option>
-    <option value="برگر">🍔 برگر</option>
-    <option value="بيتزا">🍕 بيتزا</option>
-    <option value="شاورما">🌯 شاورما</option>
-    <option value="كنتاكي">🍗 كنتاكي</option>
-    <option value="دايت">🥗 دايت</option>
-  </select>
+  <label style="font-size:12px;color:#6b6b8a;">اسم الطابعة / القسم:</label>
+  <input type="text" id="sec" placeholder="مثال: طابعة المطبخ" value="المطبخ">
   <div class="status"><div class="dot" id="dot"></div><span id="statusTxt">غير متصل</span></div>
   <button class="btn" id="startBtn" onclick="start()" disabled>▶ ابدأ المراقبة</button>
 </div>
